@@ -4,15 +4,15 @@ const db = require('../../data/db-config')
 
 
 const getAll = () => {
-  db('accounts')
+  return db('accounts')
 }
 
 const getById = id => {
-  // DO YOUR MAGIC
+  return db('accounts').where('id', id).first();
 }
 
 const create = account => {
-  // DO YOUR MAGIC
+  // return db('accounts').insert({name:'', budget:})
 }
 
 const updateById = (id, account) => {
