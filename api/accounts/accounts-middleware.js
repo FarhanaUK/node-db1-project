@@ -1,21 +1,22 @@
 const Account = require('./accounts-model')
+const db = require('../../data/db-config')
 
 
 exports.checkAccountPayload = (req, res, next) => {
   const {name, budget } = req.body
- if(!name || !budget){
+ if(name === undefined || budget === undefined){
  return res.status(400).json({
     message: "name and budget are required"
   })
 }
-if(name.length < 3 || name.length > 100){
+if(name.trim().length < 3 || name.trim().length > 100){
  return res.status(400).json({
   message: "name of account must be between 3 and 100"
   })
 }
-  if(typeof budget !== "number"){
+  if(typeof budget !== "number" || isNaN(budget)){
    return res.status(400).json({
-      message: "budget of account is too large or too small"
+      message: "budget of account must be a number"
     })
   }
   if(budget < 0 || budget > 1000000){
@@ -27,9 +28,19 @@ if(name.length < 3 || name.length > 100){
   next()
 }
 
-exports.checkAccountNameUnique = (req, res, next) => {
- console.log('middleware')
+exports.checkAccountNameUnique = async(req, res, next) => {
+ try{
+const existing = await db('accounts').where('name', req.body.name.trim()).first()
+if(existing){
+next({status: 400, message: 'that name is taken'})
+}else{
   next()
+}
+ }
+ catch(err){
+  next()
+ }
+
 }
 
 exports.checkAccountId = async(req, res, next) => {
